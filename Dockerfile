@@ -40,4 +40,10 @@ ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
 ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 
-WORKDIR /workspace
+RUN pip install flask requests
+
+COPY . /nsfw_service
+
+WORKDIR /nsfw_service
+ENV FLASK_APP app.py
+CMD flask run --host=0.0.0.0
