@@ -1,9 +1,13 @@
 import caffe
 import numpy as np
 import requests
+from cStringIO import StringIO
 from classify_nsfw import caffe_preprocess_and_compute
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
+from PIL import Image
 
+
+MISTAKE_STORAGE = "mistakes/"
 
 class NSFWDetector:
 
@@ -40,3 +44,18 @@ def query():
         else:
             results.append(None)
     return jsonify(results)
+
+
+@app.route("/report_mistake", methods=["POST"])
+def report_mistake():
+    json_request = request.get_json()
+    results = []
+    for image_url, image_class in json_request.iteritems():
+        response = requests.get(image_url)
+        if response.status_code == requests.codes.ok:
+            image = Image.open(StringIO(response.content))
+            save_image(image, image_class)
+            results.append(True)
+        else:
+            results.append(False)
+    return results
