@@ -39,7 +39,7 @@ def save_image(image, image_class):
     image.save(os.path.join(save_folder, current_time + ".png"), "PNG")
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 detector = NSFWDetector()
 
 
@@ -70,3 +70,7 @@ def report_mistake():
         else:
             results.append(False)
     return jsonify(results)
+
+@app.route("/")
+def root():
+    return app.send_static_file("README.html")
