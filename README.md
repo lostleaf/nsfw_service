@@ -11,7 +11,10 @@ sudo docker build -t nsfw_service .
 Then, you can run the built docker image:
 
 ```
-sudo docker run -v FOLDER_TO_STORE_MISTAKE_SAMPLES:/nsfw_service/mistakes -p 5000:5000 --rm nsfw_service
+sudo docker run \
+-v FOLDER_TO_STORE_MISTAKE_SAMPLES:/nsfw_service/mistakes \
+-p 5000:5000 --rm \
+nsfw_service
 ```
 
 You should replace FOLDER_TO_STORE_MISTAKE_SAMPLES to the absolute path of the folder you want to store the wrongly predicted samples
@@ -27,7 +30,11 @@ You can send a JSON array of image URLs to `/query` to predict the images. If th
 Here is an query example using `curl`:
 
 ```
-curl -H "Content-Type: application/json" -X POST -d '["http://www.cosy.sbg.ac.at/~pmeerw/Watermarking/lena_color.gif", "http://httpbin.org/status/404"]' http://52.76.69.39:5000/query
+curl -H "Content-Type: application/json" \
+-X POST \
+-d '["http://www.cosy.sbg.ac.at/~pmeerw/Watermarking/lena_color.gif", \
+"http://httpbin.org/status/404"]' \
+http://52.76.69.39:5000/query
 ```
 
 The reture value should be:
@@ -46,7 +53,11 @@ You can send a JSON array of (image URL, class) pairs to `/query` to report mist
 Here is an example using curl:
 
 ```
-curl -H "Content-Type: application/json" -X POST -d '[["http://www.cosy.sbg.ac.at/~pmeerw/Watermarking/lena_color.gif", false], ["http://httpbin.org/status/404", false]]' http://52.76.69.39:5000/report_mistake
+curl -H "Content-Type: application/json" \
+-X POST \
+-d '[["http://www.cosy.sbg.ac.at/~pmeerw/Watermarking/lena_color.gif", \ 
+false], ["http://httpbin.org/status/404", false]]' \
+http://52.76.69.39:5000/report_mistake
 ```
 
 The return value should be:
