@@ -1,11 +1,12 @@
 import caffe
 import numpy as np
 import requests
+import os
+import datetime
 from cStringIO import StringIO
 from classify_nsfw import caffe_preprocess_and_compute
 from flask import Flask, request, jsonify, abort
 from PIL import Image
-
 
 MISTAKE_STORAGE = "mistakes/"
 
@@ -26,6 +27,16 @@ class NSFWDetector:
                                               caffe_net=self.nsfw_net, 
                                               output_layers=['prob'])
         return scores[1]
+
+
+def save_image(image, image_class):
+    image_class = bool(image_class)
+    save_folder = os.path.join(MISTAKE_STORAGE, str(image_class))
+    if not os.path.exists(save_folder):
+        os.mkdir(save_folder)
+    
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
+    image.save(os.path.join(save_folder, current_time + ".png"), "PNG")
 
 
 app = Flask(__name__)
@@ -50,7 +61,7 @@ def query():
 def report_mistake():
     json_request = request.get_json()
     results = []
-    for image_url, image_class in json_request.iteritems():
+    for image_url, image_class in json_request:
         response = requests.get(image_url)
         if response.status_code == requests.codes.ok:
             image = Image.open(StringIO(response.content))
@@ -58,4 +69,4 @@ def report_mistake():
             results.append(True)
         else:
             results.append(False)
-    return results
+    return jsonify(results)
